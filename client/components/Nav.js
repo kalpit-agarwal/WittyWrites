@@ -2,6 +2,7 @@ import Link from "next/link";
 import { useContext, useState, useEffect } from "react";
 import { UserContext } from "../context";
 import { useRouter } from "next/router";
+import { Avatar } from "@chakra-ui/react";
 //we dont use "to" in nextjs, we use "href" instead
 const Nav = () => {
   const [current, setCurrent] = useState("");
@@ -21,49 +22,80 @@ const Nav = () => {
   };
 
   return (
-    <ul
-      className="nav bg-dark d-flex  justify-content-end py-2 "
-      style={{ gap: "80px" }}
-    >
-      <li className={`nav-item ${current === "/" && "active"}`}>
-        <Link href="/" className="nav-link text-light logo">
-          WittyWrites
-        </Link>
-      </li>
-      {state !== null ? (
-        <>
-          <li
-            className={`nav-item ${current === "/user/dashboard" && "active"}`}
-          >
-            <Link href="/user/dashboard" className={`nav-link text-light `}>
-              {state && state.user && state.user.name}
-            </Link>
-          </li>
-          <li className="nav-item">
-            <a
-              onClick={logout}
-              className="nav-link text-light"
-              style={{ cursor: "pointer" }}
-            >
-              Logout
-            </a>
-          </li>
-        </>
-      ) : (
-        <>
-          <li className={`nav-item ${current === "/login" && "active"}`}>
-            <Link href="/login" className="nav-link text-light">
-              Login
-            </Link>
-          </li>
-          <li className={`nav-item ${current === "/register" && "active"}`}>
-            <Link href="/register" className="nav-link text-light">
-              Register
-            </Link>
-          </li>
-        </>
-      )}
-    </ul>
+    <>
+      <ul
+        className="nav bg-dark d-flex  justify-content-end py-2 "
+        style={{ gap: "80px" }}
+      >
+        <li
+          href="/"
+          className={`nav-item `}
+          style={{ marginRight: "auto", marginLeft: "2rem" }}
+        >
+          <Link href="/">
+            <Avatar size="sm" width="50px" src="/images/logo.png" />
+          </Link>
+        </li>
+
+        <li className={`nav-item ${current === "/" && "active"}`}>
+          <Link href="/" className="nav-link text-light logo">
+            WittyWrites
+          </Link>
+        </li>
+
+        {state !== null ? (
+          <>
+            <div className="dropdown mx-4">
+              <button
+                className="btn btn-secondary dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                {state && state.user && state.user.name}
+              </button>
+              <ul className="dropdown-menu">
+                <li className={`dropdown-item `}>
+                  <Link href="/user/dashboard" className={` dropdown-item  `}>
+                    Dashboard
+                  </Link>
+                </li>
+                <li className={`dropdown-item `}>
+                  <Link
+                    href="/user/profile/update"
+                    className={` dropdown-item  `}
+                  >
+                    Profile
+                  </Link>
+                </li>
+                <li className="dropdown-item">
+                  <a
+                    onClick={logout}
+                    className="nav-link dropdown-item"
+                    style={{ cursor: "pointer" }}
+                  >
+                    Logout
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </>
+        ) : (
+          <>
+            <li className={`nav-item ${current === "/login" && "active"}`}>
+              <Link href="/login" className="nav-link text-light">
+                Login
+              </Link>
+            </li>
+            <li className={`nav-item ${current === "/register" && "active"}`}>
+              <Link href="/register" className="nav-link text-light">
+                Register
+              </Link>
+            </li>
+          </>
+        )}
+      </ul>
+    </>
   );
 };
 

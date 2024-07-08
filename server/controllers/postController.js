@@ -1,5 +1,6 @@
 import Post from "../models/post.js";
 import cloudinary from "cloudinary";
+import User from "../models/user.js";
 
 export const createPost = async (req, res) => {
   const { content, image } = req.body;
@@ -54,7 +55,9 @@ export const postsByUser = async (req, res) => {
 
 export const userPost = async (req, res) => {
   try {
-    const post = await Post.findById(req.params._id);
+    const post = await Post.findById(req.params._id)
+      .populate("comments.postedBy", "_id name image")
+      .populate("postedBy", "_id name image");
 
     res.json(post);
   } catch (error) {
@@ -92,6 +95,84 @@ export const deletePost = async (req, res) => {
       await cloudinary.uploader.destroy(post.image.public_id);
     }
     res.json({ ok: true });
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const newsFeed = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const following = user.following;
+    following.push(req.user._id);
+    const posts = await Post.find({ postedBy: { $in: following } })
+      .populate("comments.postedBy", "_id name image")
+      .populate("postedBy", "_id name image")
+      .limit(10)
+      .sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const likePost = async (req, res) => {
+  try {
+    const post = await Post.findByIdAndUpdate(
+      req.body._id,
+      {
+        $addToSet: { likes: req.user._id },
+      },
+      { new: true }
+    );
+
+    res.json(post);
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const unlikePost = async (req, res) => {
+  try {
+    const post = await Post.findByIdAndUpdate(
+      req.body._id,
+      {
+        $pull: { likes: req.user._id },
+      },
+      { new: true }
+    );
+    res.json(post);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const addComment = async (req, res) => {
+  const { comment, postId } = req.body;
+
+  const commentObj = { text: comment, postedBy: req.user._id };
+  try {
+    const post = await Post.findByIdAndUpdate(
+      postId,
+      { $push: { comments: commentObj } },
+      { new: true }
+    )
+      .populate("comments.postedBy", "_id name image")
+      .populate("postedBy", "_id name image");
+    res.json(post);
+  } catch (error) {
+    console.log(error);
+  }
+};
+export const removeComment = async (req, res) => {
+  const { postId, comment } = req.body;
+  try {
+    const post = await Post.findByIdAndUpdate(
+      postId,
+      { $pull: { comments: { _id: comment._id } } },
+      { new: true }
+    );
+
+    res.json(post);
   } catch (error) {
     console.log(error);
   }

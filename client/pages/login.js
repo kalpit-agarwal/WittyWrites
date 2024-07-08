@@ -33,7 +33,7 @@ const Login = () => {
         //save in local storage
         window.localStorage.setItem("auth", JSON.stringify(data));
 
-        router.push("/");
+        router.push("/user/dashboard");
       }
     } catch (err) {
       toast.error(err.response.data);
@@ -41,7 +41,7 @@ const Login = () => {
     }
   };
 
-  if (state && state.token) router.push("/");
+  if (state && state.token) router.push("/user/dashboard");
 
   return (
     <div className="container-fluid">

@@ -2,6 +2,13 @@ import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema(
   {
+    username: {
+      type: String,
+      trim: true,
+      required: true,
+      maxlength: 32,
+      unique: true,
+    },
     name: {
       type: String,
       trim: true,
@@ -24,8 +31,9 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     about: {},
-    photo: {
-      type: String,
+    image: {
+      url: String,
+      public_id: String,
     },
     following: [{ type: mongoose.Schema.ObjectId, ref: "User" }],
     followers: [{ type: mongoose.Schema.ObjectId, ref: "User" }],

@@ -8,6 +8,11 @@ import {
   userPost,
   updatePost,
   deletePost,
+  newsFeed,
+  likePost,
+  unlikePost,
+  addComment,
+  removeComment,
 } from "../controllers/postController.js";
 const router = express.Router();
 
@@ -29,4 +34,12 @@ router.delete(
   canEditDeletePost,
   deletePost
 );
+
+router.get("/news-feed", requireSignin, newsFeed);
+router.put("/like-post", requireSignin, likePost);
+router.put("/unlike-post", requireSignin, unlikePost);
+
+router.put("/add-comment", requireSignin, addComment);
+router.put("/remove-comment", requireSignin, removeComment);
+
 export default router;

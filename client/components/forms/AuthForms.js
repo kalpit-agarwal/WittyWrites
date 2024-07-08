@@ -12,9 +12,48 @@ const AuthForm = ({
   setSecret,
   loading,
   page,
+  username,
+  setUsername,
+  about,
+  setAbout,
+  profileUpdate,
 }) => {
   return (
     <form onSubmit={handleSubmit}>
+      {profileUpdate && (
+        <>
+          {" "}
+          <div className="form-group p-2">
+            <small>
+              <label htmlFor="" className="text-muted">
+                Username
+              </label>
+            </small>
+            <input
+              onChange={(e) => setUsername(e.target.value)}
+              value={username}
+              type="text"
+              className="form-control"
+              placeholder="Enter name "
+            />
+          </div>
+          <div className="form-group p-2">
+            <small>
+              <label htmlFor="" className="text-muted">
+                About
+              </label>
+            </small>
+            <input
+              onChange={(e) => setAbout(e.target.value)}
+              value={about}
+              type="text"
+              className="form-control"
+              placeholder="Write about yourself"
+            />
+          </div>
+        </>
+      )}
+
       {page !== "login" && (
         <div className="form-group p-2">
           <small>
@@ -39,6 +78,7 @@ const AuthForm = ({
           </label>
         </small>
         <input
+          disabled={profileUpdate}
           onChange={(e) => setEmail(e.target.value)}
           value={email}
           type="email"
@@ -96,7 +136,9 @@ const AuthForm = ({
         ) : (
           <button
             disabled={
-              page === "login"
+              profileUpdate
+                ? loading
+                : page === "login"
                 ? !email || !password || loading
                 : !name || !password || !secret || !email || loading
             }
