@@ -69,11 +69,20 @@ const home = ({ posts }) => {
 };
 
 export async function getServerSideProps() {
-  const { data } = await axios.get(`/posts`);
+  try {
+    const { data } = await axios.get(`/posts`);
 
-  return {
-    props: { posts: data },
-  };
+    return {
+      props: { posts: data },
+    };
+  } catch (err) {
+    console.error("Error fetching posts:", err);
+    return {
+      props: {
+        posts: [],
+      },
+    };
+  }
 }
 
 export default home;
