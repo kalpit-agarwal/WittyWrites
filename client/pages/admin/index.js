@@ -4,7 +4,7 @@ import AdminRoute from "../../components/routes/AdminRoute";
 
 import axios from "axios";
 import { toast } from "react-toastify";
-import renderHTML from "react-render-html";
+import parse from "html-react-parser";
 const Admin = () => {
   const [state, setState] = useContext(UserContext);
 
@@ -51,7 +51,7 @@ const Admin = () => {
           <div className="col-md-8 offset-md-2">
             {posts.map((post) => (
               <div key={post._id} className="d-flex justify-content-between">
-                <div> {renderHTML(post.content)}</div>
+                <div> {parse(post.content)}</div>
                 <div
                   className="text-danger"
                   onClick={() => handleDelete(post)}

@@ -1,4 +1,4 @@
-import renderHTML from "react-render-html";
+import parse from "html-react-parser";
 import { useContext } from "react";
 import moment from "moment";
 import { Avatar } from "@chakra-ui/react";
@@ -39,7 +39,7 @@ const Post = ({
             </div>
             <div className="text-muted">{moment(post.createdAt).fromNow()}</div>
           </div>
-          <div className="card-body">{renderHTML(post.content)}</div>
+          <div className="card-body">{parse(post.content)}</div>
           <div className="card-footer">
             {post.image && <PostImage url={post.image.url} />}
             <div className="d-flex align-items-center">
