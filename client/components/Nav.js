@@ -68,6 +68,13 @@ const Nav = () => {
                     Profile
                   </Link>
                 </li>
+                {state.user.role === "Admin" && (
+                  <li className={`dropdown-item `}>
+                    <Link href="/admin" className={` dropdown-item  `}>
+                      Admin
+                    </Link>
+                  </li>
+                )}
                 <li className="dropdown-item">
                   <a
                     onClick={logout}

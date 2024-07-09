@@ -14,7 +14,12 @@ export const createPost = async (req, res) => {
       postedBy: req.user._id,
     });
     await post.save();
-    res.json(post);
+    const postWithUser = await Post.findById(post._id).populate(
+      "postedBy",
+      "-password -secret"
+    );
+
+    res.json(postWithUser);
   } catch (error) {
     console.log(error);
     res.status(400);
@@ -105,11 +110,18 @@ export const newsFeed = async (req, res) => {
     const user = await User.findById(req.user._id);
     const following = user.following;
     following.push(req.user._id);
+
+    //pagination
+    const currentPage = req.params.page || 1;
+    const perPage = 3;
+
     const posts = await Post.find({ postedBy: { $in: following } })
+      .skip((currentPage - 1) * perPage)
       .populate("comments.postedBy", "_id name image")
       .populate("postedBy", "_id name image")
-      .limit(10)
+      .limit(perPage)
       .sort({ createdAt: -1 });
+    //skip ...skip krdega utne posts...we are calculating the number of posts to skip here
     res.json(posts);
   } catch (error) {
     console.log(error);
@@ -172,6 +184,39 @@ export const removeComment = async (req, res) => {
       { new: true }
     );
 
+    res.json(post);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const totalPosts = async (req, res) => {
+  try {
+    const total = await Post.find().estimatedDocumentCount();
+    res.json(total);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const posts = async (req, res) => {
+  try {
+    const posts = await Post.find()
+      .populate("postedBy", "_id name image")
+      .populate("comments.postedBy", "_id name image")
+      .limit(12)
+      .sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getPost = async (req, res) => {
+  try {
+    const post = await Post.findById(req.params._id)
+      .populate("postedBy", "_id name image")
+      .populate("comments.postedBy", "_id name image");
     res.json(post);
   } catch (error) {
     console.log(error);

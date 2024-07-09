@@ -8,7 +8,23 @@ import PostList from "../../components/cards/PostList";
 import People from "../../components/cards/People";
 import Link from "next/link";
 import { CommentForm } from "../../components/forms/CommentForm";
+import {
+  Pagination,
+  PaginationContainer,
+  PaginationNext,
+  PaginationPage,
+  PaginationPrevious,
+} from "@ajna/pagination";
+import Search from "../../components/Search";
+import io from "socket.io-client";
 
+const socket = io(
+  process.env.NEXT_PUBLIC_SOCKETIO,
+  { path: "/socket.io" },
+  {
+    reconnection: true,
+  }
+);
 const Home = () => {
   const [state, setState] = useContext(UserContext);
   const [content, setContent] = useState("");
@@ -19,17 +35,32 @@ const Home = () => {
   const [comment, setComment] = useState("");
   const [visible, setVisible] = useState(false);
   const [currentPost, setCurrentPost] = useState({});
+  const [totalPosts, setTotalPosts] = useState(0);
+  const [page, setPage] = useState(1);
+  const totalPages = totalPosts / 3 + 1;
 
   useEffect(() => {
     if (state && state.token) {
       newsFeed();
       findPeople();
     }
-  }, [state && state.token]);
+  }, [state && state.token, page]);
+
+  useEffect(() => {
+    try {
+      const getPosts = async () => {
+        const { data } = await axios.get(`/total-posts`);
+        setTotalPosts(data);
+      };
+      getPosts();
+    } catch (err) {
+      console.log(err);
+    }
+  }, []);
 
   const newsFeed = async () => {
     try {
-      const { data } = await axios.get(`/news-feed`);
+      const { data } = await axios.get(`/news-feed/${page}`);
       setPosts(data);
     } catch (err) {
       console.log(err);
@@ -56,8 +87,10 @@ const Home = () => {
         setContent("");
         newsFeed();
         toast.success("Post created");
-
+        setPage(1);
         setImage({});
+        //socket
+        socket.emit("new-post", data);
       }
     } catch (err) {
       console.log(err);
@@ -148,11 +181,11 @@ const Home = () => {
       console.log(err);
     }
   };
-  const removeComment = async (e) => {
+  const removeComment = async (postId, c) => {
     try {
-      const { data } = await axios.delete(`/remove-comment`, {
-        postId: currentPost._id,
-        comment: e,
+      const { data } = await axios.put(`/remove-comment`, {
+        postId,
+        comment: c,
       });
 
       newsFeed();
@@ -186,9 +219,52 @@ const Home = () => {
               posts={posts}
               handleDelete={handleDelete}
               handleComment={handleComment}
+              removeComment={removeComment}
             />
+            <Pagination
+              pagesCount={totalPages}
+              currentPage={page}
+              onPageChange={(value) => setPage(value)}
+            >
+              <PaginationContainer
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  marginTop: "20px",
+                }}
+              >
+                <PaginationPrevious
+                  style={{ margin: "0 5px", cursor: "pointer" }}
+                  onClick={() => setPage(page > 1 ? page - 1 : page)}
+                >
+                  Previous
+                </PaginationPrevious>
+                {Array.from({ length: totalPages }, (_, i) => (
+                  <PaginationPage
+                    key={`pagination_page_${i + 1}`}
+                    page={i + 1}
+                    style={{
+                      margin: "0 5px",
+                      cursor: "pointer",
+                      fontWeight: page === i + 1 ? "bold" : "normal",
+                    }}
+                    onClick={() => setPage(i + 1)}
+                  />
+                ))}
+                <PaginationNext
+                  style={{ margin: "0 5px", cursor: "pointer" }}
+                  onClick={() => setPage(page < totalPages ? page + 1 : page)}
+                >
+                  Next
+                </PaginationNext>
+              </PaginationContainer>
+            </Pagination>
+            <br />
+            <br />
           </div>
           <div className="col-md-4">
+            <Search />
+            <br />
             {state && state.user && state.user.following && (
               <Link className="h6 btn btn-secondary" href={`/user/following`}>
                 {state.user.following.length} Following

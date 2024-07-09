@@ -1,5 +1,9 @@
 import express from "express";
-import { requireSignin, canEditDeletePost } from "../middlewares/auth.js";
+import {
+  requireSignin,
+  canEditDeletePost,
+  isAdmin,
+} from "../middlewares/auth.js";
 import formidable from "express-formidable";
 import {
   createPost,
@@ -13,6 +17,9 @@ import {
   unlikePost,
   addComment,
   removeComment,
+  totalPosts,
+  posts,
+  getPost,
 } from "../controllers/postController.js";
 const router = express.Router();
 
@@ -35,11 +42,20 @@ router.delete(
   deletePost
 );
 
-router.get("/news-feed", requireSignin, newsFeed);
+router.get("/news-feed/:page", requireSignin, newsFeed);
 router.put("/like-post", requireSignin, likePost);
 router.put("/unlike-post", requireSignin, unlikePost);
 
 router.put("/add-comment", requireSignin, addComment);
 router.put("/remove-comment", requireSignin, removeComment);
+router.get("/total-posts", totalPosts);
+
+router.get("/posts", posts);
+
+router.get("/post/:_id", getPost);
+//for SEO h ye jb home se kisiblog pr click krkr vaha jaaenge
+
+//admin access keliye to delete post
+router.delete("/admin/delete-post/:_id", requireSignin, isAdmin, deletePost);
 
 export default router;

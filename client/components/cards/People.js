@@ -1,12 +1,10 @@
 import { Avatar } from "@chakra-ui/react";
-import moment from "moment";
-import { useRouter } from "next/router";
-import { UserContext } from "../../context";
 import { useContext } from "react";
+import { UserContext } from "../../context";
 import { Box, Text, Stack, Divider } from "@chakra-ui/react";
-const People = ({ people, handleFollow }) => {
+import Link from "next/link";
+const People = ({ people, handleFollow, handleUnfollow }) => {
   const [state] = useContext(UserContext);
-  const router = useRouter();
   return (
     <Stack spacing={3}>
       {people.map((person, index) => (
@@ -23,16 +21,33 @@ const People = ({ people, handleFollow }) => {
                 cursor="pointer"
                 marginRight="1rem"
               />
-              <Text>{person.name}</Text>
+              <Link href={`/user/${person.username}`}>
+                {" "}
+                <Text>{person.name}</Text>
+              </Link>
             </Box>
-            <Text
-              as="span"
-              color="blue"
-              cursor="pointer"
-              onClick={() => handleFollow(person)}
-            >
-              Follow
-            </Text>
+            {state &&
+            state.user &&
+            person.followers &&
+            person.followers.includes(state.user._id) ? (
+              <Text
+                as="span"
+                color="blue"
+                cursor="pointer"
+                onClick={() => handleUnfollow(person)}
+              >
+                UnFollow
+              </Text>
+            ) : (
+              <Text
+                as="span"
+                color="blue"
+                cursor="pointer"
+                onClick={() => handleFollow(person)}
+              >
+                follow
+              </Text>
+            )}
           </Box>
           {index < people.length - 1 && <Divider mt={2} />}
         </Box>

@@ -206,6 +206,35 @@ const removeFollower = async (req, res, next) => {
   }
 };
 
+const searchUser = async (req, res) => {
+  const { query } = req.params;
+  if (!query) return;
+  try {
+    const user = await User.find({
+      $or: [
+        { name: { $regex: query, $options: "i" } },
+        { username: { $regex: query, $options: "i" } },
+      ],
+    }).select("-password -secret");
+
+    //regex here is special to mongodb...query ko case insensitive banane keliye here
+    res.json(user);
+  } catch (err) {
+    console.log("Search user failed", err);
+  }
+};
+
+const getUser = async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.params.username }).select(
+      "-password -secret"
+    );
+    res.json(user);
+  } catch (err) {
+    console.log("Get user failed", err);
+  }
+};
+
 export {
   register,
   login,
@@ -218,4 +247,6 @@ export {
   userFollowing,
   userUnfollow,
   removeFollower,
+  searchUser,
+  getUser,
 };

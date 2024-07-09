@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 import Post from "../models/post.js";
-
+import User from "../models/user.js";
 const requireSignin = async (req, res, next) => {
   const token = req.header("token");
   if (!token) {
@@ -30,4 +30,16 @@ const canEditDeletePost = async (req, res, next) => {
   }
 };
 
-export { requireSignin, canEditDeletePost };
+const isAdmin = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (user.role !== "Admin") {
+      return res.status(400).json({ error: "Unauthorized" });
+    }
+    next();
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export { requireSignin, canEditDeletePost, isAdmin };
