@@ -57,6 +57,16 @@ const Register = () => {
 
       <div className="row py-5">
         <div className="col-md-6 offset-md-3">
+          <div className="alert alert-info text-center mb-4">
+            <p className="mb-1">
+              <strong>Admin</strong> Email: <code>admin@admin</code>, Password:{" "}
+              <code>admin1</code>
+            </p>
+            <p>
+              <strong>User</strong> Email: <code>a@a</code>, Password:{" "}
+              <code>aaaaaa</code>
+            </p>
+          </div>
           <AuthForm
             handleSubmit={handleSubmit}
             name={name}
